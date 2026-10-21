@@ -1,0 +1,15 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# User configuration containing private passwords/IPs
+config.json
+
+# Temporary / Zip archives
+*.zip
+scratch/
+
+# IDE / Editor files
+.vscode/
+.idea/

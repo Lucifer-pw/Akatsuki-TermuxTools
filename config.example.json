@@ -1,0 +1,35 @@
+{
+  "theme": {
+    "name": "akatsuki",
+    "primary_color": "bold red",
+    "secondary_color": "bright_white",
+    "accent_color": "bright_red",
+    "border_color": "red"
+  },
+  "router": {
+    "gateway_ip": "auto",
+    "port": 80,
+    "model": "zte",
+    "username": "user",
+    "password": "user1234",
+    "timeout": 5
+  },
+  "network": {
+    "keep_alive_target": "1.1.1.1",
+    "keep_alive_interval": 2.0,
+    "dns_servers": [
+      {"name": "Cloudflare DNS", "ip": "1.1.1.1"},
+      {"name": "Cloudflare Secondary", "ip": "1.0.0.1"},
+      {"name": "Google Public DNS", "ip": "8.8.8.8"},
+      {"name": "Google Secondary", "ip": "8.8.4.4"},
+      {"name": "Quad9 Secure", "ip": "9.9.9.9"},
+      {"name": "AdGuard DNS (AdBlock)", "ip": "94.140.14.14"},
+      {"name": "OpenDNS Home", "ip": "208.67.222.222"}
+    ],
+    "mtu_test_host": "1.1.1.1"
+  },
+  "osint": {
+    "default_region": "ID",
+    "numverify_api_key": ""
+  }
+}
