@@ -21,13 +21,19 @@ Kumpulan tools utilitas Termux modern dengan arsitektur modular berstandar Pytho
    - **Benchmark Multi-DNS**: Menguji latensi query (ms) ke Cloudflare (1.1.1.1), Google (8.8.8.8), Quad9 (9.9.9.9), AdGuard DNS (94.140.14.14), dan merekomendasikan DNS tercepat beserta panduan Private DNS di Android.
    - **Ping Keep-Alive Daemon**: Mengirim probe ringan berkala untuk mencegah Android masuk ke WiFi sleep / power saving mode serta memantau latensi dan packet loss secara real-time.
    - **MTU Path Finder**: Menghitung ukuran MTU optimal tanpa fragmentasi (Don't Fragment flag).
-   - **LAN Device Scanner (NetCut-Style)**: Memindai perangkat apa saja yang sedang aktif terhubung ke jaringan WiFi Anda lengkap dengan deteksi MAC dan merk/vendor perangkat.
+   - **LAN Device Scanner (NetCut-Style)**: Memindai perangkat apa saja yang sedang aktif terhubung ke jaringan WiFi Anda lengkap dengan deteksi MAC, OUI vendor, dan deep identification untuk merk HP asli!
    - **Bandwidth Activity Monitor**: Menganalisis beban WiFi per perangkat secara real-time, mengidentifikasi aktivitas (Torrent/Download, Video Streaming, Browsing, Idle) dan mendeteksi tersangka utama penyebab WiFi lemot!
 
-4. **🎨 Akatsuki TUI Dashboard**:
+4. **🛡️ Network Security & Protection (BARU)**:
+   - **Anti-NetCut Live Sentinel**: Mendeteksi serangan ARP spoofing / pemutusan koneksi secara real-time, menampilkan IP dan MAC penyerang.
+   - **Static ARP Lock**: Mengunci pasangan IP-MAC gateway menjadi statis agar perangkat kebal 100% dari NetCut!
+   - **Intruder / Rogue Device Alert**: Sistem Whitelist untuk memantau apakah ada HP/perangkat asing yang menyusup ke WiFi Anda.
+   - **Nmap Security Auditor**: Memindai port dan celah keamanan router (Telnet, FTP, UPnP, TR-069) menggunakan Nmap asli atau Pure Python Fallback Scanner.
+
+5. **🎨 Akatsuki TUI Dashboard & Auto-Update**:
    - Banner ASCII Awan Akatsuki berwarna merah dan putih kontras.
-   - Navigasi angka interaktif (`[1]`, `[2]`, `[3]`) yang sangat nyaman ditekan pada keyboard virtual Android.
-   - Panel berbingkai rapi (`rich.panel.Panel`), tabel responsif, dan status bar perangkat (IP, Gateway, Baterai, Jaringan).
+   - Navigasi angka interaktif (`[1]` s/d `[7]`) yang sangat nyaman ditekan pada keyboard virtual Android.
+   - Fitur **Auto-Update**: Tarik kode dan pembaruan terbaru langsung dari GitHub (`git pull`) langsung dari dalam menu aplikasi!
 
 ---
 

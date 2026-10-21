@@ -28,6 +28,8 @@ from core.utils import (
 from modules.osint_phone import run_osint_phone_module
 from modules.router_control import run_router_module
 from modules.net_optimizer import run_network_module
+from modules.net_security import run_net_security_module
+import subprocess
 
 from rich.panel import Panel
 from rich.table import Table
@@ -107,14 +109,37 @@ def show_settings_screen() -> None:
                 save_config(cfg)
 
 
+def update_akatsuki_tools() -> None:
+    """Pulls latest updates from GitHub."""
+    clear_screen()
+    console.print(Panel(
+        "[bold red]✦ AUTO-UPDATE AKATSUKI TOOLS[/bold red]\n"
+        "[white]Mengambil pembaruan fitur terbaru langsung dari repositori GitHub...[/white]",
+        border_style="red"
+    ))
+    with console.status("[bold red]Menjalankan git pull origin main...[/bold red]", spinner="dots"):
+        try:
+            proc = subprocess.run(["git", "pull", "origin", "main"], capture_output=True, text=True, timeout=25)
+            if proc.returncode == 0:
+                console.print(f"\n[bold green]✔ BERHASIL DI-UPDATE![/bold green]\n[dim white]{proc.stdout.strip()}[/dim white]")
+                console.print("\n[bold white]Pembaruan selesai! Silakan jalankan ulang aplikasi untuk memuat kode terbaru.[/bold white]")
+            else:
+                console.print(f"\n[bold yellow]▲ Hasil git pull:[/bold yellow]\n{proc.stdout or proc.stderr}")
+        except Exception as e:
+            console.print(f"\n[bold red]✖ Gagal update:[/bold red] {e}")
+    pause()
+
+
 def main():
     """Main application loop."""
     menu_options = [
         ("1", "📱 OSINT Phone Intelligence", "Validasi format E.164, operator, & generator search dorks publik"),
         ("2", "📡 Router Automation (Reboot)", "Otomatisasi restart router WiFi lokal & deteksi kredensial default"),
         ("3", "⚡ Network & Bandwidth Optimizer", "Benchmark Multi-DNS tercepat, ping keep-alive, & MTU analyzer"),
-        ("4", "⚙️  Pengaturan & Konfigurasi", "Kelola preferensi gateway, kredensial, & default region"),
-        ("5", "ℹ️  Tentang Akatsuki Tools", "Informasi versi, arsitektur, & kredit"),
+        ("4", "🛡️ Network Security & Protection", "Anti-NetCut Sentinel, deteksi penyusup WiFi, & audit Nmap"),
+        ("5", "🔄 Update Akatsuki Tools", "Tarik update kodingan terbaru langsung dari GitHub (Git Pull)"),
+        ("6", "⚙️  Pengaturan & Konfigurasi", "Kelola preferensi gateway, kredensial, & default region"),
+        ("7", "ℹ️  Tentang Akatsuki Tools", "Informasi versi, arsitektur, & kredit"),
         ("0", "Keluar dari Akatsuki", "Tutup session terminal")
     ]
 
@@ -126,7 +151,7 @@ def main():
             console.print()
             display_menu(menu_options, title="AKATSUKI DASHBOARD - MAIN MENU")
             
-            choice = prompt_choice("Pilih nomor menu [0-5]: ")
+            choice = prompt_choice("Pilih nomor menu [0-7]: ")
 
             if choice == "0":
                 clear_screen()
@@ -146,13 +171,19 @@ def main():
                 run_network_module()
 
             elif choice == "4":
-                show_settings_screen()
+                run_net_security_module()
 
             elif choice == "5":
+                update_akatsuki_tools()
+
+            elif choice == "6":
+                show_settings_screen()
+
+            elif choice == "7":
                 show_about_screen()
 
             else:
-                console.print("\n[bold red]Pilihan tidak valid! Masukkan angka antara 0 sampai 5.[/bold red]")
+                console.print("\n[bold red]Pilihan tidak valid! Masukkan angka antara 0 sampai 7.[/bold red]")
                 pause()
 
         except KeyboardInterrupt:

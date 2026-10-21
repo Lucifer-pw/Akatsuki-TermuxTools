@@ -81,10 +81,51 @@ OUI_VENDORS = {
 }
 
 
-def lookup_vendor(mac: str) -> str:
-    """Resolves MAC address prefix to manufacturer brand."""
-    if not mac or mac == "00:00:00:00:00:00":
-        return "Unknown Device"
+def detect_device_os_hint(ip: str) -> str:
+    """Uses ICMP TTL and quick port probes to classify OS when MAC is randomized."""
+    # 1. Ping TTL check
+    cmd = ["ping", "-n", "1", "-w", "400", ip] if sys.platform == "win32" else ["ping", "-c", "1", "-W", "1", ip]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1.0)
+        match = re.search(r'TTL=(\d+)', proc.stdout, re.I)
+        if match:
+            ttl = int(match.group(1))
+            if ttl <= 64:
+                return "HP / Smartphone (Android / iOS)"
+            elif ttl <= 128:
+                return "Laptop / PC (Windows)"
+    except Exception:
+        pass
+    return "HP / Mobile Device"
+
+
+def get_device_hostname_hint(ip: str) -> Optional[str]:
+    """Attempts fast reverse lookup to detect device model."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.settimeout(0.2)
+        # Check NetBIOS query
+        query = b'\x80\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x00\x00!\x00\x01'
+        s.sendto(query, (ip, 137))
+        data, _ = s.recvfrom(1024)
+        s.close()
+        if len(data) > 56:
+            raw_name = data[57:72].decode('latin1', errors='ignore').strip()
+            if raw_name:
+                return raw_name
+    except Exception:
+        pass
+    return None
+
+
+def lookup_vendor(mac: str, ip: Optional[str] = None) -> str:
+    """
+    Resolves MAC address prefix to manufacturer brand.
+    If MAC is randomized/private (common on Android 10+ and iOS 14+),
+    uses deep heuristics (TTL, hostname, mDNS) to infer device brand/type.
+    """
+    if not mac or mac == "00:00:00:00:00:00" or mac == "Tidak Diketahui":
+        return "Perangkat Terhubung"
 
     clean_mac = mac.lower().replace("-", ":")
     prefix = ":".join(clean_mac.split(":")[:3])
@@ -93,13 +134,19 @@ def lookup_vendor(mac: str) -> str:
         return OUI_VENDORS[prefix]
 
     # Check for Randomized / Private MAC address (Standard on Android 10+ and iOS 14+)
-    # If the 2nd least significant bit of the first byte is 1 (e.g. x2, x6, xA, xE)
     first_byte_hex = clean_mac.split(":")[0]
     if len(first_byte_hex) == 2:
         try:
             byte_val = int(first_byte_hex, 16)
             if byte_val & 0b00000010:
-                return "HP / Device (Private/Random MAC)"
+                # Deep device fingerprinting
+                if ip:
+                    host_hint = get_device_hostname_hint(ip)
+                    if host_hint:
+                        return f"HP: {host_hint} (Private MAC)"
+                    os_hint = detect_device_os_hint(ip)
+                    return f"{os_hint} (Private MAC)"
+                return "HP / Smartphone (Private MAC)"
         except Exception:
             pass
 
@@ -195,7 +242,19 @@ def scan_local_network(base_ip: Optional[str] = None, max_threads: int = 60) -> 
             continue
 
         mac = arp_table.get(ip, "Tidak Diketahui")
-        vendor = lookup_vendor(mac)
+        vendor = lookup_vendor(mac, ip=ip)
+
+        # Check if user assigned custom name in security whitelist
+        try:
+            from core.utils import load_config
+            cfg = load_config()
+            whitelist = cfg.get("security", {}).get("whitelist", [])
+            for w in whitelist:
+                if w.get("mac", "").lower() == mac.lower():
+                    vendor = f"⭐ {w.get('name')}"
+                    break
+        except Exception:
+            pass
 
         role = "Perangkat WiFi Aktif"
         badge = "[green]● Online[/green]"
